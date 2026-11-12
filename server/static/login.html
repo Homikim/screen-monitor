@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Screen Monitor 로그인</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<div class="login-wrap">
+  <form class="login-card" id="form">
+    <h1><span class="logo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg></span>Screen Monitor</h1>
+    <p>관리자 계정으로 로그인하면 등록된 PC 화면을 모니터링할 수 있습니다.</p>
+    <label class="field">아이디<input class="input" name="username" autocomplete="username" required autofocus></label>
+    <label class="field">비밀번호<input class="input" name="password" type="password" autocomplete="current-password" required></label>
+    <div class="error" id="err"></div>
+    <button class="btn primary" type="submit">로그인</button>
+  </form>
+</div>
+<script>
+document.getElementById('form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const f = e.target, err = document.getElementById('err');
+  err.textContent = '';
+  try {
+    const r = await fetch('/api/login', {
+      method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({username: f.username.value, password: f.password.value})
+    });
+    if (r.ok) { location.href = '/'; return; }
+    const j = await r.json().catch(() => ({}));
+    err.textContent = j.detail || '로그인에 실패했습니다';
+  } catch { err.textContent = '서버에 연결할 수 없습니다'; }
+});
+</script>
+</body>
+</html>

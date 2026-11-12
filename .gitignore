@@ -1,0 +1,22 @@
+# 서버 런타임 데이터 — 관리자 비밀번호, 클라이언트 접속 토큰, DB (절대 커밋 금지)
+server/data/
+
+# 클라이언트 빌드 산출물 (exe 는 GitHub Releases 등으로 배포)
+client/build/
+client/dist/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+
+# 편집기 / OS
+.vscode/
+.idea/
+.claude/
+Thumbs.db
+desktop.ini
+.DS_Store
+*.log

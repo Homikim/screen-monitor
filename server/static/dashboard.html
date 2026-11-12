@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Screen Monitor</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<div class="app">
+  <div class="topbar">
+    <div class="brand"><span class="logo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg></span><span class="txt">Screen Monitor</span></div>
+    <div class="stat">
+      <span><span class="dot" style="background:var(--ok)"></span>온라인 <b id="stOnline">0</b></span>
+      <span class="hide-sm"><span class="dot" style="background:var(--bad)"></span>오프라인 <b id="stOffline">0</b></span>
+      <span class="hide-sm">등록 <b id="stTotal">0</b></span>
+    </div>
+    <div class="spacer"></div>
+    <input class="input search" id="search" placeholder="이름 / IP / 호스트 검색">
+    <div class="seg" id="viewSeg" title="보기 방식">
+      <button data-view="grid" title="모든 PC를 한 화면에 (G)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg><span class="lbl">그리드</span></button><button data-view="slide" title="한 대씩 크게 자동으로 넘겨 보기 (S)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="4" width="14" height="12" rx="1.5"/><path d="M2 7v6M22 7v6M9 20h6"/></svg><span class="lbl">슬라이드</span></button>
+    </div>
+    <div class="seg cols" id="colsSeg" title="화면 분할">
+      <button data-cols="0" title="창 크기에 맞춰 자동 배치">자동</button><button data-cols="2">2</button><button data-cols="3">3</button><button data-cols="4">4</button><button data-cols="5">5</button><button data-cols="6">6</button>
+    </div>
+    <div class="seg" id="fitSeg" title="화면 맞춤">
+      <button data-fit="cover">채우기</button><button data-fit="contain">전체</button>
+    </div>
+    <button class="btn" id="btnManage">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+      <span class="lbl">PC 관리</span> <span class="badge-count" id="pendingBadge" hidden>0</span>
+    </button>
+    <div class="conn" id="conn"><span class="dot"></span><span class="txt">연결 중</span></div>
+    <a class="btn icon" href="/guide" target="_blank" rel="noopener" title="사용 가이드"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6V14M12 17.5v.01"/></svg></a>
+    <button class="btn icon" id="btnPw" title="비밀번호 변경"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></button>
+    <button class="btn icon" id="btnLogout" title="로그아웃"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg></button>
+  </div>
+
+  <div class="wall-wrap">
+    <div class="wall" id="wall"></div>
+    <div class="empty" id="empty" hidden>
+      <h2>모니터링할 PC가 없습니다</h2>
+      <p>클라이언트 PC의 IP를 등록하면 화면이 이곳에 표시됩니다.</p>
+      <button class="btn primary" id="btnEmptyAdd">PC 등록하기</button>
+    </div>
+  </div>
+
+  <!-- 슬라이드 쇼 -->
+  <div class="slides" id="slides" hidden>
+    <div class="s-stage" id="sStage" title="클릭: 일시정지/재생 · 더블클릭: 전체화면">
+      <img id="sImg" alt="" hidden>
+      <div class="placeholder" id="sPh"></div>
+      <div class="s-label"><span class="dot"></span><span class="nm" id="sName"></span><span class="ip" id="sIp"></span><span class="mode" id="sMode" hidden></span></div>
+      <div class="s-count" id="sCount"></div>
+      <div class="s-progress"><i id="sBar"></i></div>
+    </div>
+    <div class="s-dock">
+      <div class="s-bar">
+        <button class="btn icon" id="sPrev" title="이전 PC (←)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg></button>
+        <button class="btn icon" id="sPlay"></button>
+        <button class="btn icon" id="sNext" title="다음 PC (→)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg></button>
+        <span class="s-meta" id="sMeta"></span>
+        <label class="s-opt">전환 간격 <select class="input" id="sDwell"></select></label>
+        <label class="check" title="오프라인 PC는 슬라이드에서 건너뜁니다"><input type="checkbox" id="sSkip"> 오프라인 건너뛰기</label>
+        <label class="check" title="현재 슬라이드의 PC를 확대 보기와 같은 고화질(초당 최대 8장)로 받습니다. 끄면 PC 부하가 늘지 않습니다."><input type="checkbox" id="sHq"> 고화질</label>
+        <button class="btn" id="sOpen" title="확대 보기 (Enter)">확대 보기</button>
+        <button class="btn icon" id="sFull" title="전체화면 (F)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3M21 8V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3M16 21h3a2 2 0 0 0 2-2v-3"/></svg></button>
+      </div>
+      <div class="s-strip" id="sStrip"></div>
+    </div>
+  </div>
+</div>
+
+<!-- PC 관리 드로어 -->
+<div class="overlay" id="drawerOv">
+  <aside class="drawer">
+    <header><h3>PC 관리</h3><button class="btn icon" data-close title="닫기">✕</button></header>
+    <div class="body">
+      <section class="section">
+        <h4>PC 등록</h4>
+        <form class="add-form" id="addForm">
+          <input class="input" name="ip" placeholder="IP 주소 (예: 192.168.0.21)" required>
+          <input class="input" name="name" placeholder="표시 이름 (예: 1번 PC)" maxlength="64">
+          <select class="input" name="interval" title="화면 전송 방식" data-interval-select></select>
+          <button class="btn primary" type="submit">등록</button>
+        </form>
+        <div class="error" id="addErr"></div>
+      </section>
+
+      <section class="section" id="pendingSec" hidden>
+        <h4>등록 대기 <span class="badge-count" id="pendingCount">0</span></h4>
+        <div class="hint" style="margin-bottom:8px">클라이언트 앱이 접속을 시도했지만 등록되지 않은 IP입니다.</div>
+        <div class="list" id="pendingList"></div>
+      </section>
+
+      <section class="section">
+        <h4>등록된 PC <span id="regCount" style="font-weight:400"></span></h4>
+        <div class="list" id="regList"></div>
+      </section>
+
+      <section class="section">
+        <h4>클라이언트 앱 연결 정보</h4>
+        <div class="hint">각 PC의 Screen Monitor 클라이언트에 아래 서버 주소와 접속 토큰을 입력하세요.</div>
+        <div class="list" id="connInfo" style="margin-top:8px"></div>
+      </section>
+    </div>
+  </aside>
+</div>
+
+<!-- 이름 변경 -->
+<div class="overlay" id="editOv">
+  <form class="modal" id="editForm">
+    <h3>PC 정보 수정</h3>
+    <label class="field">IP 주소<input class="input" name="ip" readonly></label>
+    <label class="field">표시 이름<input class="input" name="name" maxlength="64"></label>
+    <label class="field">화면 전송 방식
+      <select class="input" name="interval" data-interval-select></select>
+    </label>
+    <div class="hint" id="editModeHint"></div>
+    <label class="check"><input type="checkbox" name="live_on_focus"> 확대 보기를 열면 실시간으로 전환 (주기 캡처일 때)</label>
+    <label class="check"><input type="checkbox" name="apply_all"> 이 전송 방식을 등록된 모든 PC에 적용</label>
+    <div class="row"><button class="btn" type="button" data-close>취소</button><button class="btn primary" type="submit">저장</button></div>
+  </form>
+</div>
+
+<!-- 비밀번호 변경 -->
+<div class="overlay" id="pwOv">
+  <form class="modal" id="pwForm">
+    <h3>비밀번호 변경</h3>
+    <label class="field">현재 비밀번호<input class="input" name="current" type="password" autocomplete="current-password" required></label>
+    <label class="field">새 비밀번호 (6자 이상)<input class="input" name="new" type="password" minlength="6" autocomplete="new-password" required></label>
+    <label class="field">새 비밀번호 확인<input class="input" name="confirm" type="password" minlength="6" autocomplete="new-password" required></label>
+    <div class="error" id="pwErr"></div>
+    <div class="row"><button class="btn" type="button" data-close>취소</button><button class="btn primary" type="submit">변경</button></div>
+  </form>
+</div>
+
+<!-- 확대 보기 -->
+<div class="viewer" id="viewer">
+  <header>
+    <button class="btn icon" id="vClose" title="닫기 (Esc)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg></button>
+    <span class="title" id="vTitle"></span>
+    <span class="meta" id="vMeta"></span>
+    <div class="spacer"></div>
+    <button class="btn" id="vCapture" title="이 PC에 지금 화면을 한 장 캡처해서 보내도록 요청"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-2.64-6.36M21 3v6h-6"/></svg>지금 캡처</button>
+    <button class="btn" id="vSnap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>스냅샷</button>
+    <button class="btn" id="vFull"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3M21 8V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3M16 21h3a2 2 0 0 0 2-2v-3"/></svg>전체화면</button>
+  </header>
+  <div class="stage" id="vStage">
+    <img id="vImg" alt="">
+    <div class="placeholder" id="vPh">화면 수신 대기 중…</div>
+    <button class="nav prev" id="vPrev" title="이전 (←)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg></button>
+    <button class="nav next" id="vNext" title="다음 (→)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg></button>
+  </div>
+</div>
+
+<div class="toasts" id="toasts"></div>
+<script src="/static/dashboard.js"></script>
+</body>
+</html>

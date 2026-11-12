@@ -1,0 +1,409 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Screen Monitor 사용 가이드</title>
+<style>
+:root {
+  --bg: #ffffff; --panel: #f6f8fb; --line: #e2e7ef; --text: #1b2330; --muted: #5d6878;
+  --accent: #2a6fd6; --accent-bg: #eaf2ff; --ok: #16a34a; --warn: #d97706; --bad: #dc2626;
+  --code-bg: #f1f4f9; --warn-bg: #fff7e6; --warn-line: #f5d08a; --tip-bg: #ecfdf3; --tip-line: #a7e3bd;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0b0e13; --panel: #10141a; --line: #232a35; --text: #e6ebf2; --muted: #8a94a6;
+    --accent: #6aa5ff; --accent-bg: #142339; --code-bg: #161b23; --warn-bg: #2a2010; --warn-line: #5a4512;
+    --tip-bg: #0f2418; --tip-line: #1f5a35; color-scheme: dark;
+  }
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { margin: 0; background: var(--bg); color: var(--text); line-height: 1.7; font-size: 15px;
+  font-family: "Pretendard", "Malgun Gothic", "Apple SD Gothic Neo", system-ui, sans-serif; }
+.layout { display: grid; grid-template-columns: 240px minmax(0, 1fr); max-width: 1180px; margin: 0 auto; }
+nav.toc { position: sticky; top: 0; height: 100vh; overflow: auto; padding: 28px 16px 28px 20px; border-right: 1px solid var(--line); font-size: 13.5px; }
+nav.toc .brand { font-weight: 700; font-size: 15px; margin-bottom: 14px; display: flex; gap: 8px; align-items: center; }
+nav.toc .brand span { width: 22px; height: 22px; border-radius: 6px; background: var(--accent); display: inline-grid; place-items: center; }
+nav.toc .brand svg { width: 14px; height: 14px; color: #fff; }
+nav.toc ol { list-style: none; margin: 0; padding: 0; counter-reset: toc; }
+nav.toc li { counter-increment: toc; }
+nav.toc a { display: block; padding: 5px 8px; border-radius: 6px; color: var(--muted); text-decoration: none; }
+nav.toc a::before { content: counter(toc) ". "; }
+nav.toc a:hover { background: var(--panel); color: var(--text); }
+main { padding: 32px 40px 80px; min-width: 0; }
+h1 { font-size: 28px; margin: 0 0 6px; }
+.lead { color: var(--muted); margin: 0 0 28px; }
+h2 { font-size: 21px; margin: 48px 0 12px; padding-top: 12px; border-top: 1px solid var(--line); scroll-margin-top: 12px; }
+h2 .num { color: var(--accent); margin-right: 6px; }
+h3 { font-size: 16.5px; margin: 26px 0 8px; }
+p { margin: 8px 0; }
+a { color: var(--accent); }
+code, kbd { font-family: Consolas, "D2Coding", monospace; font-size: 13px; background: var(--code-bg); border: 1px solid var(--line); border-radius: 4px; padding: 1px 5px; }
+kbd { border-bottom-width: 2px; }
+pre { background: var(--code-bg); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; overflow-x: auto; font-size: 13px; line-height: 1.55; }
+pre code { background: none; border: 0; padding: 0; }
+table { border-collapse: collapse; width: 100%; margin: 10px 0; font-size: 14px; }
+th, td { border: 1px solid var(--line); padding: 7px 10px; text-align: left; vertical-align: top; }
+th { background: var(--panel); font-weight: 600; white-space: nowrap; }
+.table-wrap { overflow-x: auto; }
+ol.steps { padding-left: 0; list-style: none; counter-reset: st; }
+ol.steps > li { counter-increment: st; position: relative; padding: 2px 0 10px 38px; }
+ol.steps > li::before { content: counter(st); position: absolute; left: 0; top: 2px; width: 26px; height: 26px; border-radius: 50%;
+  background: var(--accent); color: #fff; font-weight: 700; font-size: 13px; display: grid; place-items: center; }
+.note, .tip, .warn { border: 1px solid; border-radius: 8px; padding: 10px 14px; margin: 12px 0; font-size: 14px; }
+.note { background: var(--accent-bg); border-color: color-mix(in srgb, var(--accent) 35%, transparent); }
+.tip { background: var(--tip-bg); border-color: var(--tip-line); }
+.warn { background: var(--warn-bg); border-color: var(--warn-line); }
+.note b:first-child, .tip b:first-child, .warn b:first-child { margin-right: 4px; }
+.diagram { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 18px; margin: 14px 0; overflow-x: auto; }
+.diagram svg { display: block; width: 100%; min-width: 560px; height: auto; }
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 10px; margin: 12px 0; }
+.card { border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; background: var(--panel); }
+.card b { display: block; margin-bottom: 4px; }
+.card small { color: var(--muted); font-size: 13px; }
+.dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 6px; vertical-align: 1px; }
+.muted { color: var(--muted); }
+.ui { font-weight: 600; background: var(--panel); border: 1px solid var(--line); border-radius: 4px; padding: 0 6px; white-space: nowrap; }
+details { border: 1px solid var(--line); border-radius: 8px; margin: 8px 0; background: var(--panel); }
+details summary { cursor: pointer; padding: 10px 14px; font-weight: 600; }
+details > div { padding: 0 14px 10px; }
+.toolbar { position: fixed; right: 16px; bottom: 16px; display: flex; gap: 8px; }
+.toolbar button { border: 1px solid var(--line); background: var(--panel); color: var(--text); border-radius: 8px; padding: 6px 12px; font: inherit; font-size: 13px; cursor: pointer; }
+@media (max-width: 900px) {
+  .layout { grid-template-columns: 1fr; }
+  nav.toc { position: static; height: auto; border-right: 0; border-bottom: 1px solid var(--line); padding: 16px; }
+  nav.toc ol { columns: 2; }
+  main { padding: 20px 16px 60px; }
+}
+@media print {
+  nav.toc, .toolbar { display: none; }
+  .layout { display: block; }
+  main { padding: 0; }
+  h2 { break-before: page; border-top: 0; }
+  h2:first-of-type { break-before: auto; }
+  details { break-inside: avoid; }
+  details:not([open]) > div { display: block; }
+}
+</style>
+</head>
+<body>
+<div class="layout">
+<nav class="toc">
+  <div class="brand"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg></span>사용 가이드</div>
+  <ol>
+    <li><a href="#overview">개요</a></li>
+    <li><a href="#quick">빠른 시작</a></li>
+    <li><a href="#server">서버 설치·실행</a></li>
+    <li><a href="#register">PC 등록</a></li>
+    <li><a href="#client">클라이언트 앱</a></li>
+    <li><a href="#monitor">모니터링 화면</a></li>
+    <li><a href="#load">부하 줄이기 (전송 방식)</a></li>
+    <li><a href="#trouble">문제 해결</a></li>
+    <li><a href="#security">보안·관리</a></li>
+    <li><a href="#ref">명령어 모음</a></li>
+  </ol>
+</nav>
+
+<main>
+<h1>Screen Monitor 사용 가이드</h1>
+<p class="lead">네트워크의 여러 PC 주모니터 화면을 한곳에 모아 CCTV처럼 모니터링하는 방법을 설명합니다.<br>
+관리자(서버 운영자)와 클라이언트 PC 사용자 모두를 위한 문서입니다. 이 페이지는 서버의 <code>/guide</code> 주소에서 로그인 없이 볼 수 있습니다.</p>
+
+<!-- ============================================================ -->
+<h2 id="overview"><span class="num">1</span>개요</h2>
+<p>Screen Monitor는 세 부분으로 구성됩니다.</p>
+<div class="cards">
+  <div class="card"><b>① 서버 (관리자 PC 1대)</b><small>화면을 받아 모으고 관리자 웹 페이지를 제공합니다. <code>server/app.py</code></small></div>
+  <div class="card"><b>② 클라이언트 앱 (모니터링 대상 PC)</b><small>그 PC의 주모니터 화면을 서버로 보냅니다. <code>ScreenMonitorClient.exe</code></small></div>
+  <div class="card"><b>③ 관리자 웹 (브라우저)</b><small>로그인하면 등록된 모든 PC 화면이 CCTV 월로 보입니다.</small></div>
+</div>
+<div class="diagram">
+<svg viewBox="0 0 760 210" role="img" aria-label="클라이언트 PC들이 서버로 화면을 보내고, 관리자가 브라우저로 모니터링하는 구성도">
+  <defs><marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="currentColor"/></marker></defs>
+  <g font-size="13" fill="currentColor" style="color:var(--text)">
+    <g style="color:var(--muted)" stroke="currentColor" fill="none" stroke-width="1.5">
+      <rect x="10" y="14" width="190" height="48" rx="8"/><rect x="10" y="82" width="190" height="48" rx="8"/><rect x="10" y="150" width="190" height="48" rx="8"/>
+      <rect x="300" y="64" width="190" height="84" rx="10" style="color:var(--accent)" stroke-width="2"/>
+      <rect x="580" y="74" width="170" height="64" rx="8"/>
+      <path d="M200 38 L298 92" marker-end="url(#ar)"/><path d="M200 106 L298 106" marker-end="url(#ar)"/><path d="M200 174 L298 120" marker-end="url(#ar)"/>
+      <path d="M490 106 L578 106" marker-end="url(#ar)"/>
+    </g>
+    <text x="105" y="36" text-anchor="middle" font-weight="600">PC 1 · 192.168.0.21</text><text x="105" y="53" text-anchor="middle" font-size="11" fill="var(--muted)">클라이언트 앱</text>
+    <text x="105" y="104" text-anchor="middle" font-weight="600">PC 2 · 192.168.0.22</text><text x="105" y="121" text-anchor="middle" font-size="11" fill="var(--muted)">클라이언트 앱</text>
+    <text x="105" y="172" text-anchor="middle" font-weight="600">PC N · …</text><text x="105" y="189" text-anchor="middle" font-size="11" fill="var(--muted)">클라이언트 앱</text>
+    <text x="395" y="96" text-anchor="middle" font-weight="700">서버 :8000</text>
+    <text x="395" y="115" text-anchor="middle" font-size="11" fill="var(--muted)">등록된 IP의 화면만 수집</text>
+    <text x="395" y="131" text-anchor="middle" font-size="11" fill="var(--muted)">로그인한 관리자에게 중계</text>
+    <text x="665" y="102" text-anchor="middle" font-weight="600">관리자 브라우저</text><text x="665" y="120" text-anchor="middle" font-size="11" fill="var(--muted)">CCTV 월 모니터링</text>
+    <text x="250" y="20" text-anchor="middle" font-size="11" fill="var(--muted)">화면(JPEG)</text>
+  </g>
+</svg>
+</div>
+<ul>
+  <li>서버는 <b>관리자가 등록한 IP</b>의 화면만 받습니다. 등록되지 않은 PC가 접속하면 거부하고 <span class="ui">등록 대기</span> 목록에 표시합니다.</li>
+  <li>클라이언트 앱은 <b>주모니터</b> 화면만 보냅니다. 앱 창 제목에 <code>● … 공유 중</code>이 표시되어, PC 사용자도 공유 중임을 항상 알 수 있습니다.</li>
+  <li>평소에는 저화질·저프레임(최대 1fps)으로, 관리자가 특정 PC를 크게 열면 그 PC만 고화질·고프레임(약 8fps)으로 전환됩니다. PC 부하를 더 줄이려면 <a href="#load">주기 캡처 모드</a>를 사용하세요.</li>
+</ul>
+
+<!-- ============================================================ -->
+<h2 id="quick"><span class="num">2</span>빠른 시작</h2>
+<ol class="steps">
+  <li><b>서버 실행</b> — 관리자 PC에서 <code>server\run_server.bat</code>를 실행합니다. 콘솔에 <b>관리자 비밀번호</b>와 <b>클라이언트 토큰</b>이 표시됩니다.</li>
+  <li><b>로그인</b> — 브라우저에서 <code>http://서버IP:8000</code>에 접속해 <code>admin</code> 계정으로 로그인하고, 오른쪽 위 자물쇠 아이콘으로 비밀번호를 바꿉니다.</li>
+  <li><b>PC 등록</b> — <span class="ui">PC 관리</span>에서 모니터링할 PC의 IP와 이름을 등록합니다.</li>
+  <li><b>클라이언트 실행</b> — 각 PC에서 <code>ScreenMonitorClient.exe</code>를 실행하고 서버 주소·접속 토큰을 입력한 뒤 <span class="ui">공유 시작</span>을 누릅니다.</li>
+  <li><b>모니터링</b> — 관리자 웹에 화면이 나타납니다. 타일을 클릭하면 크게 볼 수 있습니다.</li>
+</ol>
+
+<!-- ============================================================ -->
+<h2 id="server"><span class="num">3</span>서버 설치·실행 (관리자 PC)</h2>
+<h3>준비물</h3>
+<ul>
+  <li>Windows PC 1대 (항상 켜져 있는 PC 권장)</li>
+  <li>Python 3.10 이상 — 설치 시 <b>"Add python.exe to PATH"</b>를 체크하세요.</li>
+</ul>
+<h3>실행</h3>
+<ol class="steps">
+  <li><code>server</code> 폴더의 <code>run_server.bat</code>를 더블클릭합니다. 필요한 패키지를 자동 설치한 뒤 서버가 시작됩니다.</li>
+  <li>처음 실행하면 콘솔에 아래와 같은 정보가 표시됩니다.
+<pre><code>============================================================
+ 최초 관리자 계정이 생성되었습니다
+   아이디   : admin
+   비밀번호 : (무작위 비밀번호)
+============================================================
+ Screen Monitor 서버
+   관리자 웹   : http://192.168.0.10:8000
+   클라이언트 토큰 : (접속 토큰)</code></pre>
+  초기 비밀번호는 <code>server\data\initial_admin_password.txt</code>에도 저장되며, 웹에서 비밀번호를 바꾸면 이 파일은 자동으로 삭제됩니다.</li>
+  <li>Windows 방화벽에서 <b>TCP 8000 포트 인바운드</b>를 허용합니다. 처음 실행할 때 나오는 방화벽 알림에서 <b>개인 네트워크</b> 허용을 눌러도 됩니다.</li>
+</ol>
+<div class="warn"><b>주의</b> 콘솔 창을 닫으면 서버가 종료됩니다. 서버가 꺼져 있으면 클라이언트는 자동으로 재접속을 시도하며 기다립니다.</div>
+<h3>자주 쓰는 관리 명령</h3>
+<p><code>server</code> 폴더에서 실행합니다.</p>
+<div class="table-wrap"><table>
+  <tr><th>할 일</th><th>명령</th></tr>
+  <tr><td>비밀번호 재설정 (분실 시)</td><td><code>python app.py set-password admin 새비밀번호</code></td></tr>
+  <tr><td>관리자 계정 추가</td><td><code>python app.py set-password 아이디 비밀번호</code></td></tr>
+  <tr><td>클라이언트 토큰 확인</td><td><code>python app.py show-token</code></td></tr>
+  <tr><td>다른 포트로 실행</td><td><code>python app.py --port 9000</code></td></tr>
+</table></div>
+
+<!-- ============================================================ -->
+<h2 id="register"><span class="num">4</span>PC 등록 (관리자 웹)</h2>
+<p>오른쪽 위 <span class="ui">PC 관리</span> 버튼을 누르면 관리 패널이 열립니다.</p>
+<h3>방법 A — IP를 직접 등록</h3>
+<ol class="steps">
+  <li><span class="ui">PC 등록</span>에 IP 주소(예: <code>192.168.0.21</code>)와 표시 이름(예: <code>1번 PC</code>)을 입력합니다.</li>
+  <li><a href="#load">화면 전송 방식</a>을 고릅니다. 기본은 <b>실시간 스트리밍</b>입니다.</li>
+  <li><span class="ui">등록</span>을 누릅니다. 그 PC에서 클라이언트 앱이 실행 중이면 약 10초 안에 화면이 나타납니다.</li>
+</ol>
+<div class="tip"><b>팁</b> PC의 IP는 그 PC에서 <code>ipconfig</code> 명령으로 확인하거나, 클라이언트 앱 아래쪽의 <code>내 IP</code> 표시를 보면 됩니다.</div>
+<h3>방법 B — 등록 대기 목록에서 등록 (IP를 몰라도 됨)</h3>
+<p>클라이언트 앱을 먼저 실행하면, 등록되지 않은 PC는 <span class="ui">등록 대기</span> 목록에 PC 이름과 함께 나타나고 <span class="ui">PC 관리</span> 버튼에 빨간 숫자가 붙습니다. 목록의 <span class="ui">등록</span>을 누르면 IP와 이름이 자동으로 입력되며, 확인 후 등록하면 됩니다.</p>
+<h3>수정·삭제</h3>
+<ul>
+  <li><span class="ui">수정</span> — 표시 이름과 화면 전송 방식을 바꿀 수 있습니다. <b>"이 전송 방식을 등록된 모든 PC에 적용"</b>을 체크하면 전체 PC에 한 번에 적용됩니다.</li>
+  <li><span class="ui">삭제</span> — 그 PC의 연결이 즉시 끊기고 화면 수집이 중단됩니다. 클라이언트 앱에는 "등록 대기"가 표시됩니다.</li>
+</ul>
+<h3>클라이언트에 알려줄 정보</h3>
+<p>관리 패널 맨 아래 <span class="ui">클라이언트 앱 연결 정보</span>에 <b>서버 주소</b>와 <b>접속 토큰</b>이 있습니다. <span class="ui">복사</span> 버튼으로 복사해 각 PC 사용자에게 전달하세요.</p>
+
+<!-- ============================================================ -->
+<h2 id="client"><span class="num">5</span>클라이언트 앱 (모니터링 대상 PC)</h2>
+<h3>설치·실행</h3>
+<ol class="steps">
+  <li><code>ScreenMonitorClient.exe</code>를 PC의 원하는 폴더(예: <code>C:\ScreenMonitor</code>)에 복사합니다. 별도 설치나 Python이 필요 없습니다.</li>
+  <li>실행한 뒤 <b>서버 주소</b>(예: <code>http://192.168.0.10:8000</code>)와 <b>접속 토큰</b>을 입력합니다.</li>
+  <li><span class="ui">공유 시작</span>을 누릅니다. 상태가 <span class="dot" style="background:var(--ok)"></span><b>화면 공유 중</b>으로 바뀌면 완료입니다.</li>
+</ol>
+<h3>옵션</h3>
+<div class="table-wrap"><table>
+  <tr><th>옵션</th><th>설명</th></tr>
+  <tr><td>프로그램 실행 시 자동으로 공유 시작</td><td>앱을 켜면 버튼을 누르지 않아도 바로 공유합니다.</td></tr>
+  <tr><td>Windows 로그인 시 자동 실행</td><td>PC를 켜고 로그인하면 앱이 최소화 상태로 자동 실행되어 공유를 시작합니다.</td></tr>
+  <tr><td>저부하 모드</td><td>실시간 대신 정해진 주기(5초~10분)마다 한 장만 캡처합니다. 오래된 PC나 성능이 중요한 작업 PC에 사용하세요. <a href="#load-client">자세히</a></td></tr>
+</table></div>
+<p>입력한 서버 주소·토큰·옵션은 자동 저장됩니다(<code>%APPDATA%\ScreenMonitorClient\config.json</code>). 창을 닫으면 <b>[예] 공유 중지 후 종료</b> / <b>[아니오] 최소화하고 계속 공유</b> 중에서 고를 수 있습니다.</p>
+<h3>상태 표시</h3>
+<div class="table-wrap"><table>
+  <tr><th>상태</th><th>의미 / 할 일</th></tr>
+  <tr><td><span class="dot" style="background:var(--ok)"></span>화면 공유 중</td><td>정상입니다. 아래 문구에 현재 전송 방식(실시간 / 확대 보기 중 / N초마다 캡처)이 표시됩니다.</td></tr>
+  <tr><td><span class="dot" style="background:var(--warn)"></span>등록 대기</td><td>서버에 이 PC의 IP가 등록되지 않았습니다. 표시된 IP를 관리자에게 알려 주세요. 등록되면 10초 안에 자동으로 공유가 시작됩니다.</td></tr>
+  <tr><td><span class="dot" style="background:var(--bad)"></span>접속 토큰이 올바르지 않습니다</td><td>관리자에게 토큰을 다시 받아 입력하세요.</td></tr>
+  <tr><td><span class="dot" style="background:var(--bad)"></span>서버에 연결할 수 없습니다</td><td>서버 주소, 서버 실행 여부, 방화벽을 확인하세요. 앱은 자동으로 계속 재시도합니다.</td></tr>
+  <tr><td><span class="dot" style="background:var(--bad)"></span>같은 IP의 다른 클라이언트가 접속</td><td>같은 IP(같은 PC 또는 공유기 뒤 다른 PC)에서 앱이 또 실행되었습니다. 하나만 실행하세요.</td></tr>
+</table></div>
+<h3>여러 PC에 일괄 배포 (명령줄 옵션)</h3>
+<p>바로가기나 배포 스크립트에서 아래처럼 실행하면 입력 없이 바로 공유를 시작합니다.</p>
+<pre><code>ScreenMonitorClient.exe --server http://192.168.0.10:8000 --token 접속토큰 --connect --minimized
+ScreenMonitorClient.exe --low-load 30     (저부하 모드 30초 주기로 켜기, 0 = 끄기)</code></pre>
+<div class="warn"><b>exe가 실행되지 않을 때</b> 서명되지 않은 exe는 Windows의 <b>스마트 앱 컨트롤 / 애플리케이션 제어 정책</b>이나 SmartScreen에 의해 차단될 수 있습니다. SmartScreen 경고는 <span class="ui">추가 정보 → 실행</span>으로 실행할 수 있지만, 정책 차단은 조직 관리자가 정책에서 허용하거나 코드 서명 인증서로 서명해야 합니다.</div>
+
+<!-- ============================================================ -->
+<h2 id="monitor"><span class="num">6</span>모니터링 화면 (관리자 웹)</h2>
+<h3>상단 바</h3>
+<div class="table-wrap"><table>
+  <tr><th>항목</th><th>설명</th></tr>
+  <tr><td>온라인 / 오프라인 / 등록</td><td>등록된 PC 수와 현재 접속 상태입니다.</td></tr>
+  <tr><td>검색</td><td>이름·IP·호스트명·사용자로 타일을 걸러 봅니다.</td></tr>
+  <tr><td><span class="ui">그리드</span> / <span class="ui">슬라이드</span></td><td>보기 방식. 그리드는 모든 PC를 한 화면에, 슬라이드는 한 대씩 크게 자동으로 넘겨 봅니다 (<a href="#slideshow">슬라이드 쇼</a>). 단축키 <kbd>G</kbd> / <kbd>S</kbd>.</td></tr>
+  <tr><td><span class="ui">자동</span> <span class="ui">2</span>~<span class="ui">6</span></td><td>화면 분할. <b>자동</b>은 PC 수와 창 크기에 맞춰 스크롤 없이 한 화면에 꽉 차게 배치합니다.</td></tr>
+  <tr><td><span class="ui">채우기</span> / <span class="ui">전체</span></td><td>채우기는 타일을 꽉 채우고(가장자리 일부 잘림), 전체는 화면 전체가 보이도록 맞춥니다.</td></tr>
+  <tr><td><span class="ui">PC 관리</span></td><td>PC 등록·수정·삭제, 등록 대기 목록, 클라이언트 연결 정보.</td></tr>
+  <tr><td>● 실시간</td><td>서버와의 연결 상태. 끊기면 자동으로 다시 연결합니다.</td></tr>
+  <tr><td>? / 자물쇠 / 로그아웃</td><td>이 가이드 / 비밀번호 변경 / 로그아웃.</td></tr>
+</table></div>
+<h3>타일 표시</h3>
+<ul>
+  <li>왼쪽 위에 상태 점, 이름, IP가 표시됩니다.
+    <span class="dot" style="background:var(--ok)"></span>정상 &nbsp;
+    <span class="dot" style="background:var(--warn)"></span>응답 없음(새 화면이 오래 오지 않음) &nbsp;
+    <span class="dot" style="background:var(--bad)"></span>오프라인(어둡게 마지막 화면 표시)</li>
+  <li>주기 캡처 PC에는 시계 아이콘과 주기(예: <code>⏱ 30초</code>)가 붙습니다.</li>
+  <li>마우스를 올리면 오른쪽 아래에 fps 또는 <b>마지막 캡처 시각</b>이 나타납니다.</li>
+</ul>
+<h3>확대 보기</h3>
+<p>타일을 클릭하면 그 PC 화면을 크게 봅니다. 확대하는 동안 그 PC만 고화질·약 8fps로 전환되고, 닫으면 원래대로 돌아갑니다.</p>
+<div class="table-wrap"><table>
+  <tr><th>버튼 / 키</th><th>기능</th></tr>
+  <tr><td><span class="ui">지금 캡처</span></td><td>주기와 관계없이 그 PC에 최신 화면 한 장을 즉시 요청합니다. 주기 캡처 PC를 확인할 때 유용합니다.</td></tr>
+  <tr><td><span class="ui">스냅샷</span></td><td>현재 화면을 JPG 파일로 저장합니다 (파일명: <code>IP_날짜_시각.jpg</code>).</td></tr>
+  <tr><td><span class="ui">전체화면</span> · <kbd>F</kbd></td><td>브라우저 전체화면으로 봅니다.</td></tr>
+  <tr><td><kbd>←</kbd> <kbd>→</kbd></td><td>이전 / 다음 PC로 이동합니다.</td></tr>
+  <tr><td><kbd>Esc</kbd></td><td>확대 보기를 닫습니다 (열린 창·패널이 있으면 그것부터 닫음).</td></tr>
+</table></div>
+<h3 id="slideshow">슬라이드 쇼</h3>
+<p>상단의 <span class="ui">슬라이드</span>를 누르면 공유된 화면을 <b>한 대씩 화면 가득</b> 보여 주고, 정해진 시간마다 다음 PC로 자동으로 넘어갑니다. 상황실 모니터처럼 한 화면을 돌려 가며 보여 줄 때 좋습니다. 마지막으로 고른 보기 방식과 옵션은 브라우저에 기억됩니다.</p>
+<div class="table-wrap"><table>
+  <tr><th>버튼 / 키</th><th>기능</th></tr>
+  <tr><td><span class="ui">‹</span> <span class="ui">›</span> · <kbd>←</kbd> <kbd>→</kbd></td><td>이전 / 다음 PC로 바로 넘깁니다.</td></tr>
+  <tr><td><span class="ui">⏸</span> · <kbd>Space</kbd> · 화면 클릭</td><td>자동 넘김 일시정지 / 재생. 일시정지하면 오른쪽 위에 <code>일시정지</code>가 표시되고, 재생하면 남은 시간부터 이어집니다.</td></tr>
+  <tr><td><span class="ui">전환 간격</span></td><td>한 PC를 보여 주는 시간 (5초 ~ 5분). 화면 아래 파란 막대가 남은 시간을 보여 줍니다.</td></tr>
+  <tr><td><span class="ui">오프라인 건너뛰기</span></td><td>켜면(기본) 접속하지 않은 PC는 순서에서 빼고, 보고 있던 PC가 끊기면 바로 다음 PC로 넘어갑니다.</td></tr>
+  <tr><td><span class="ui">고화질</span></td><td>켜면(기본) 지금 보여 주는 PC만 확대 보기처럼 고화질(최대 초당 8장)로 받습니다. 끄면 그리드와 같은 화질로 보여 주어 PC 부하가 늘지 않습니다.</td></tr>
+  <tr><td><span class="ui">확대 보기</span> · <kbd>Enter</kbd></td><td>현재 PC를 확대 보기로 엽니다 (지금 캡처·스냅샷 사용). 확대 보기를 연 동안에는 슬라이드가 넘어가지 않습니다.</td></tr>
+  <tr><td>전체화면 · <kbd>F</kbd> · 화면 더블클릭</td><td>슬라이드만 전체화면으로 띄웁니다. 마우스를 3초 동안 움직이지 않으면 아래 조작 막대가 숨겨집니다.</td></tr>
+  <tr><td>아래 썸네일 줄</td><td>모든 PC의 작은 화면. 클릭하면 그 PC로 바로 이동합니다 (흐린 것은 건너뛰는 오프라인 PC).</td></tr>
+</table></div>
+<ul>
+  <li>위쪽 <b>검색</b>에 이름·IP를 입력하면 그 PC들만 돌아가며 보여 줍니다 (예: <code>3층</code>).</li>
+  <li>주소 끝에 <code>#slide</code>를 붙여 <code>http://서버IP:8000/#slide</code>로 열면 처음부터 슬라이드 쇼로 시작합니다. 상황실 PC의 바로가기나 시작 프로그램에 등록해 두세요.</li>
+  <li>주기 캡처 PC는 슬라이드에 나올 때 <a href="#load">확대 보기와 같은 규칙</a>이 적용됩니다. ‘확대 보기를 열면 실시간으로 전환’이 켜져 있으면 그 PC가 나오는 동안만 실시간으로, 꺼져 있으면 최신 화면 한 장을 받아 보여 줍니다.</li>
+</ul>
+<p class="muted">PC 접속·연결 끊김·미등록 PC 접속 시도는 오른쪽 아래 알림으로 표시됩니다.</p>
+
+<!-- ============================================================ -->
+<h2 id="load"><span class="num">7</span>부하 줄이기 — 화면 전송 방식</h2>
+<p>PC마다 화면을 보내는 방식을 고를 수 있습니다. <b>주기 캡처</b>는 화면을 계속 스트리밍하지 않고 정해진 주기마다 한 장만 찍어서 보내므로, 그 사이에는 캡처·압축을 전혀 하지 않아 <b>PC의 CPU 사용량과 네트워크 사용량이 크게 줄어듭니다.</b></p>
+<div class="table-wrap"><table>
+  <tr><th>방식</th><th>동작</th><th>PC 부하</th><th>네트워크 (PC 1대)</th><th>적합한 경우</th></tr>
+  <tr><td><b>실시간 스트리밍</b> (기본)</td><td>매초 화면을 확인해 바뀐 경우 전송 (최대 1fps, 변화 없으면 10초마다 1장)</td><td>낮음<br><small class="muted">측정: 코어 1개의 약 5%</small></td><td>약 0.1~0.5 Mbps</td><td>실시간 확인이 필요한 PC</td></tr>
+  <tr><td><b>주기 캡처</b> (5초~10분)</td><td>N초마다 한 장만 캡처해 전송</td><td>매우 낮음<br><small class="muted">측정: 10초 주기 약 0.6%</small></td><td>30초 주기 약 0.03~0.08 Mbps</td><td>PC가 많을 때, 오래된 PC, 네트워크가 느린 곳</td></tr>
+  <tr><td>확대 보기 중</td><td>고화질 약 8fps 스트리밍</td><td>보통</td><td>약 5~8 Mbps</td><td>관리자가 한 PC를 자세히 볼 때만</td></tr>
+</table></div>
+<p class="muted">부하 수치는 3440×1440 주모니터 PC에서 측정한 값이며, 화면 해상도와 PC 성능에 따라 다릅니다.</p>
+
+<h3 id="load-admin">관리자가 설정하기 (PC별 / 전체)</h3>
+<ol class="steps">
+  <li><span class="ui">PC 관리</span> → 해당 PC의 <span class="ui">수정</span>을 누릅니다. (새로 등록할 때는 등록 폼에서 바로 고를 수 있습니다.)</li>
+  <li><b>화면 전송 방식</b>에서 <code>실시간 스트리밍</code> 또는 <code>5초 / 10초 / 30초 / 1분 / 5분 / 10분마다 캡처</code>를 선택합니다.</li>
+  <li>필요하면 옵션을 정하고 <span class="ui">저장</span>을 누릅니다. 접속 중인 PC에는 <b>즉시</b> 적용됩니다.
+    <ul>
+      <li><b>확대 보기를 열면 실시간으로 전환</b> (기본 켜짐) — 주기 캡처 PC라도 관리자가 크게 볼 때만 실시간으로 바꿉니다. 끄면 확대해도 주기를 유지하고, 열 때 최신 화면 한 장만 받습니다.</li>
+      <li><b>이 전송 방식을 등록된 모든 PC에 적용</b> — 전체 PC를 한 번에 바꿉니다.</li>
+    </ul>
+  </li>
+</ol>
+
+<h3 id="load-client">PC 사용자가 직접 켜기 — 클라이언트 저부하 모드</h3>
+<p>클라이언트 앱의 <b>"저부하 모드: 실시간 대신 [N] 마다 한 장만 캡처"</b>를 체크하면, 관리자 설정과 관계없이 그 PC는 주기 캡처로 동작합니다. 공유 중에도 바로 적용됩니다.</p>
+<ul>
+  <li>관리자 설정과 저부하 모드 중 <b>더 긴 주기</b>가 적용됩니다.</li>
+  <li>저부하 모드에서는 관리자가 확대 보기를 해도 <b>실시간으로 바뀌지 않습니다</b>. (<span class="ui">지금 캡처</span> 요청은 최소 2초 간격으로 응답)</li>
+  <li>앱의 프로세스 우선순위를 <b>보통 미만</b>으로 낮춰, 사용자의 작업이 항상 먼저 처리되게 합니다.</li>
+  <li>관리자 웹에는 PC 목록에 <code>PC 저부하</code> 표시가 붙고, 타일에 실제 적용 중인 주기가 나타납니다.</li>
+</ul>
+
+<h3>권장 설정</h3>
+<div class="table-wrap"><table>
+  <tr><th>상황</th><th>권장</th></tr>
+  <tr><td>PC 20대 이하, 사내 유선 네트워크</td><td>전체 <b>실시간</b> (기본값)</td></tr>
+  <tr><td>PC 수십 대 이상 / 무선·원격지 네트워크</td><td>전체 <b>10~30초 주기</b> + 확대 시 실시간 ON</td></tr>
+  <tr><td>게임·영상 편집 등 성능이 중요한 PC, 오래된 PC</td><td>그 PC만 <b>30초~1분 주기</b> 또는 클라이언트 <b>저부하 모드</b></td></tr>
+  <tr><td>근무 기록용 화면 보관 정도면 충분</td><td><b>1~5분 주기</b> + 필요할 때 <span class="ui">지금 캡처</span></td></tr>
+</table></div>
+<div class="note"><b>참고</b> 주기 캡처는 클라이언트 <b>v1.1.0 이상</b>에서 동작합니다. 이전 버전 클라이언트는 설정을 무시하고 계속 실시간으로 보내므로, 수정 창에 경고가 표시되면 새 exe로 교체하세요. (버전은 클라이언트 앱 오른쪽 아래에 표시)</div>
+<p class="muted">주기 캡처 PC는 "응답 없음"(노란 점) 판정도 주기에 맞춰 늘어납니다. 예를 들어 1분 주기 PC는 약 75초 동안 새 화면이 없을 때 노란 점으로 바뀝니다.</p>
+
+<!-- ============================================================ -->
+<h2 id="trouble"><span class="num">8</span>문제 해결</h2>
+<details open><summary>클라이언트가 "서버에 연결할 수 없습니다"라고 표시됩니다</summary><div>
+<ul>
+  <li>서버 콘솔 창이 실행 중인지 확인하세요.</li>
+  <li>서버 주소가 맞는지 확인하세요. 클라이언트 PC 브라우저에서 <code>http://서버IP:8000/guide</code>가 열리면 주소와 네트워크는 정상입니다.</li>
+  <li>열리지 않으면 서버 PC의 Windows 방화벽에서 TCP 8000 인바운드를 허용하세요.</li>
+</ul></div></details>
+<details><summary>클라이언트는 "화면 공유 중"인데 관리자 화면에 안 보입니다</summary><div>
+<ul>
+  <li>검색창에 글자가 남아 있지 않은지 확인하세요.</li>
+  <li>공유기·VPN을 거치면 서버가 보는 IP가 PC의 IP와 다를 수 있습니다. <span class="ui">등록 대기</span> 목록에 나타난 IP로 등록하세요.</li>
+</ul></div></details>
+<details><summary>계속 "등록 대기" 상태입니다</summary><div>
+<p>관리자 웹 <span class="ui">PC 관리</span>에서 앱에 표시된 IP를 등록하세요. 등록 후 10초 안에 자동으로 공유가 시작됩니다.</p></div></details>
+<details><summary>타일에 노란 점(응답 없음)이 표시됩니다</summary><div>
+<p>PC가 연결은 되어 있지만 새 화면이 오지 않는 상태입니다. 잠금 화면, 보안 데스크톱(UAC 창), 절전 모드에서는 화면을 캡처할 수 없습니다. 사용자가 다시 로그인하거나 화면이 켜지면 자동으로 재개됩니다.</p></div></details>
+<details><summary>엉뚱한 모니터가 보입니다</summary><div>
+<p>Windows <span class="ui">설정 → 시스템 → 디스플레이</span>에서 "이 디스플레이를 주 모니터로 만들기"가 선택된 모니터가 공유됩니다. 주모니터를 바꾼 뒤에는 클라이언트 앱에서 <span class="ui">공유 중지</span> → <span class="ui">공유 시작</span>을 눌러 주세요.</p></div></details>
+<details><summary>관리자 비밀번호를 잊어버렸습니다</summary><div>
+<p>서버 PC의 <code>server</code> 폴더에서 <code>python app.py set-password admin 새비밀번호</code>를 실행하세요. 서버를 재시작할 필요는 없습니다.</p></div></details>
+<details><summary>"로그인 시도가 너무 많습니다"가 표시됩니다</summary><div>
+<p>5분 동안 5번 이상 틀리면 5분간 로그인이 제한됩니다. 잠시 후 다시 시도하세요.</p></div></details>
+<details><summary>서버를 재시작했더니 다시 로그인해야 합니다</summary><div>
+<p>정상 동작입니다. 로그인 정보는 서버 메모리에만 보관되며(12시간 유지), 등록한 PC 목록과 설정은 그대로 남아 있습니다. 클라이언트는 자동으로 다시 접속합니다.</p></div></details>
+<details><summary>네트워크가 느려졌습니다 / PC가 느려졌다는 의견이 있습니다</summary><div>
+<p><a href="#load">주기 캡처 모드</a>로 바꾸세요. 확대 보기는 PC 1대당 5~8 Mbps를 사용하므로 필요할 때만 열고, 다 본 뒤에는 닫으세요.</p></div></details>
+
+<!-- ============================================================ -->
+<h2 id="security"><span class="num">9</span>보안·관리</h2>
+<ul>
+  <li><b>최초 비밀번호는 반드시 변경</b>하세요. 변경하면 <code>initial_admin_password.txt</code>가 자동 삭제됩니다.</li>
+  <li><b>접속 토큰</b>을 아는 사람만 클라이언트를 연결할 수 있고, 그중에서도 <b>등록된 IP</b>만 수집됩니다. 토큰은 외부에 공유하지 마세요.</li>
+  <li>서버 PC에 공인 IP가 있다면 방화벽에서 8000 포트를 <b>내부 네트워크 대역</b>(예: <code>192.168.0.0/24</code>)으로만 허용하세요.</li>
+  <li>화면 이미지는 서버에 저장되지 않습니다. 각 PC의 마지막 화면 한 장만 메모리에 있다가 서버 종료 시 사라집니다. (스냅샷 버튼으로 저장한 파일은 관리자 PC에 남습니다.)</li>
+  <li>화면 모니터링은 개인정보·근로 관련 법령과 사내 규정에 따라 <b>대상자에게 고지·동의</b>를 받은 뒤 사용하세요. 클라이언트 앱은 공유 중임을 창 제목과 상태로 항상 표시합니다.</li>
+</ul>
+<h3>데이터 위치 / 백업</h3>
+<div class="table-wrap"><table>
+  <tr><th>파일</th><th>내용</th></tr>
+  <tr><td><code>server\data\monitor.db</code></td><td>관리자 계정, 등록된 PC 목록과 전송 방식</td></tr>
+  <tr><td><code>server\data\config.json</code></td><td>클라이언트 접속 토큰</td></tr>
+  <tr><td><code>%APPDATA%\ScreenMonitorClient\config.json</code></td><td>(각 PC) 서버 주소, 토큰, 클라이언트 옵션</td></tr>
+</table></div>
+<p>서버를 다른 PC로 옮길 때는 <code>server\data</code> 폴더를 통째로 복사하면 계정·PC 목록·토큰이 그대로 유지됩니다. 서버 IP가 바뀌면 각 클라이언트의 서버 주소를 새로 입력해야 합니다.</p>
+<p>접속 토큰을 바꾸려면 서버를 끄고 <code>config.json</code>의 <code>agent_token</code> 값을 지운 뒤 다시 실행하면 새 토큰이 만들어집니다. (모든 클라이언트에 새 토큰을 입력해야 합니다.)</p>
+
+<!-- ============================================================ -->
+<h2 id="ref"><span class="num">10</span>명령어 모음</h2>
+<h3>서버</h3>
+<pre><code>run_server.bat                                   서버 실행 (패키지 자동 설치)
+python app.py --port 8000                        서버 실행
+python app.py set-password admin 새비밀번호       비밀번호 설정 / 계정 추가
+python app.py show-token                         클라이언트 접속 토큰 출력</code></pre>
+<h3>클라이언트</h3>
+<pre><code>ScreenMonitorClient.exe --server http://서버IP:8000 --token 토큰   서버 정보 지정
+                        --connect                                  실행 즉시 공유 시작
+                        --minimized                                최소화 상태로 시작
+                        --low-load 30                              저부하 모드 30초 주기 (0 = 끄기)
+client\build_exe.bat                                               (개발용) exe 다시 빌드</code></pre>
+<h3>검증 도구 (서버 PC, 선택 사항)</h3>
+<pre><code>python tools\verify_virtual_pcs.py               가상 PC 12대로 전체 기능 자동 검증
+python tools\verify_virtual_pcs.py --hold 300    검증 후 가상 PC를 5분간 유지 (브라우저로 확인)
+python tools\virtual_pcs.py --count 16           데모용 가상 PC 16대 (127.0.0.101~ 등록 시 표시)</code></pre>
+<p class="muted" style="margin-top:32px">Screen Monitor · 서버 / 클라이언트 v1.1.0</p>
+</main>
+</div>
+<div class="toolbar"><button onclick="window.print()">인쇄 / PDF 저장</button></div>
+</body>
+</html>
